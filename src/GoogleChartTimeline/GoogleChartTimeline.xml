@@ -68,6 +68,15 @@
       <returnType type="Object" isList="true" entityProperty="dataItem"/>
     </property>
 
+    <property key="chartLanguage" type="translatableString" required="true">
+      <caption>Locale</caption>
+      <category>Chart</category>
+      <description>Define in what language/locale the chart should load. This only impacts the auto generated text, the datetime format (AM/PM or 24h) is taken from the Mendix language settings.</description>
+      <translations>
+        <translation lang="en_US">No results found</translation>
+        <translation lang="nl_NL">Geen resultaten gevonden</translation>
+      </translations>
+    </property>
     <property key="maxHeight" type="integer" required="true" defaultValue="200">
       <caption>Max Height (px)</caption>
       <category>Options</category>
@@ -123,9 +132,6 @@
       <translations>
         <translation lang="en_US">en</translation>
         <translation lang="nl_NL">nl</translation>
-        <translation lang="de_DE">de</translation>
-        <translation lang="fr_FR">fr</translation>
-        <translation lang="zh_CN">zh</translation>
       </translations>
     </property>
     <property key="chartVersion" type="string" required="true" defaultValue="45">

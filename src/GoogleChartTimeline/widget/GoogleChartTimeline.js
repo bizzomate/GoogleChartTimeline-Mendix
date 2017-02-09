@@ -46,7 +46,7 @@ define([
     // _TemplatedMixin will create our dom node using this HTML template.
     templateString: widgetTemplate,
 
-    // Parameters configured in the Modeler un.
+    // Parameters configured in the Modeler.
     dataItem: "",
     rowLabel: "",
     barLabel: "",
@@ -218,67 +218,74 @@ define([
         totalRows = itemList.length,
         totalToLoad = (customTooltip ? totalRows * 5 : totalRows * 4);
 
-      this._dataTable = new google.visualization.DataTable();
-      this._dataTable.addRows(totalRows);
-      this._rowItems = [];
-      this._itemsLoaded = 0;
+        if (!this._dataTable){
+          this._dataTable = new google.visualization.DataTable();
 
-      this._dataTable.addColumn({
-        type: 'string',
-        id: 'rowLabel'
-      });
-      this._dataTable.addColumn({
-        type: 'string',
-        id: 'barLabel'
-      });
-      //Add the optional tooltip if it was defined
-      if (customTooltip) {
-        this._dataTable.addColumn({
-          type: 'string',
-          role: 'Tooltip',
-          p: {
-            html: true
+          this._dataTable.addColumn({
+            type: 'string',
+            id: 'rowLabel'
+          });
+          this._dataTable.addColumn({
+            type: 'string',
+            id: 'barLabel'
+          });
+          //Add the optional tooltip if it was defined
+          if (customTooltip) {
+            this._dataTable.addColumn({
+              type: 'string',
+              role: 'Tooltip',
+              p: {
+                html: true
+              }
+            });
           }
-        });
-      }
-      this._dataTable.addColumn({
-        type: 'date',
-        id: 'Start'
-      });
-      this._dataTable.addColumn({
-        type: 'date',
-        id: 'End'
-      });
-
-      dojoArray.forEach(itemList, dojoLang.hitch(this, function(item, i) {
-        var row = [];
-        this._rowItems[i] = item.getGuid();
-
-        item.fetch(this.rowLabel, dojoLang.hitch(this, function(value) {
-          this._dataTable.setValue(i, 0, value);
-          this._chartDataLoaded(totalToLoad);
-        }));
-        item.fetch(this.barLabel, dojoLang.hitch(this, function(value) {
-          this._dataTable.setValue(i, 1, value);
-          this._chartDataLoaded(totalToLoad);
-        }));
-        //Add the optional tooltip if it was defined
-        if (customTooltip) {
-          item.fetch(this.tooltip, dojoLang.hitch(this, function(value) {
-            this._dataTable.setValue(i, 2, value);
-            this._chartDataLoaded(totalToLoad);
-          }));
+          this._dataTable.addColumn({
+            type: 'date',
+            id: 'Start'
+          });
+          this._dataTable.addColumn({
+            type: 'date',
+            id: 'End'
+          });
+        } else {
+          this._dataTable.removeRows(0, this._dataTable.getNumberOfRows());
         }
-        item.fetch(this.barStart, dojoLang.hitch(this, function(value) {
-          this._dataTable.setValue(i, (customTooltip ? 3 : 2), new Date(value));
-          this._chartDataLoaded(totalToLoad);
-        }));
-        item.fetch(this.barEnd, dojoLang.hitch(this, function(value) {
-          this._dataTable.setValue(i, (customTooltip ? 4 : 3), new Date(value));
-          this._chartDataLoaded(totalToLoad);
-        }));
-      }));
+        this._dataTable.addRows(totalRows);
+        this._rowItems = [];
+        this._itemsLoaded = 0;
 
+        if (itemList.length){
+          dojoArray.forEach(itemList, dojoLang.hitch(this, function(item, i) {
+            var row = [];
+            this._rowItems[i] = item.getGuid();
+
+            item.fetch(this.rowLabel, dojoLang.hitch(this, function(value) {
+              this._dataTable.setValue(i, 0, value);
+              this._chartDataLoaded(totalToLoad);
+            }));
+            item.fetch(this.barLabel, dojoLang.hitch(this, function(value) {
+              this._dataTable.setValue(i, 1, value);
+              this._chartDataLoaded(totalToLoad);
+            }));
+            //Add the optional tooltip if it was defined
+            if (customTooltip) {
+              item.fetch(this.tooltip, dojoLang.hitch(this, function(value) {
+                this._dataTable.setValue(i, 2, value);
+                this._chartDataLoaded(totalToLoad);
+              }));
+            }
+            item.fetch(this.barStart, dojoLang.hitch(this, function(value) {
+              this._dataTable.setValue(i, (customTooltip ? 3 : 2), new Date(value));
+              this._chartDataLoaded(totalToLoad);
+            }));
+            item.fetch(this.barEnd, dojoLang.hitch(this, function(value) {
+              this._dataTable.setValue(i, (customTooltip ? 4 : 3), new Date(value));
+              this._chartDataLoaded(totalToLoad);
+            }));
+          }));
+        } else {
+          this._drawChart();
+        }
     },
 
     //Check if all the data has been loaded
