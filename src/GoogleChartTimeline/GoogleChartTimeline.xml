@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="GoogleChartTimeline.widget.GoogleChartTimeline" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+  <name>GoogleChartTimeline</name>
+  <description>The description of this widget.</description>
+
+  <icon/>
+
+  <properties>
+    <property key="dataItem" type="entity" required="true" isPath="no" allowNonPersistableEntities="true">
+      <caption>Data entity</caption>
+      <category>Data</category>
+      <description></description>
+    </property>
+    <property key="rowLabel" type="attribute" isPath='optional' pathType='reference' required="true" entityProperty="dataItem">
+      <caption>Row label</caption>
+      <category>Data</category>
+      <description>The row label. Can be used to group bars (see options).</description>
+      <attributeTypes>
+        <attributeType name="String"/>
+        <attributeType name="AutoNumber"/>
+        <attributeType name="Long"/>
+        <attributeType name="Integer"/>
+        <attributeType name="Decimal"/>
+        <attributeType name="Enum"/>
+      </attributeTypes>
+    </property>
+    <property key="barLabel" type="attribute" isPath='optional' pathType='reference' required="true" entityProperty="dataItem">
+      <caption>Bar label</caption>
+      <category>Data</category>
+      <description></description>
+      <attributeTypes>
+        <attributeType name="String"/>
+        <attributeType name="AutoNumber"/>
+        <attributeType name="Long"/>
+        <attributeType name="Integer"/>
+        <attributeType name="Decimal"/>
+        <attributeType name="Enum"/>
+      </attributeTypes>
+    </property>
+    <property key="tooltip" type="attribute" isPath='optional' pathType='reference' required="false" entityProperty="dataItem">
+      <caption>Tooltip</caption>
+      <category>Data</category>
+      <description>A custom tooltip for the bar, html can be used (optional)</description>
+      <attributeTypes>
+        <attributeType name="String"/>
+      </attributeTypes>
+    </property>
+    <property key="barStart" type="attribute" isPath='optional' pathType='reference' required="true" entityProperty="dataItem">
+      <caption>Start DateTime</caption>
+      <category>Data</category>
+      <description></description>
+      <attributeTypes>
+        <attributeType name="DateTime"/>
+      </attributeTypes>
+    </property>
+    <property key="barEnd" type="attribute" isPath='optional' pathType='reference' required="true" entityProperty="dataItem">
+      <caption>End DateTime</caption>
+      <category>Data</category>
+      <description></description>
+      <attributeTypes>
+        <attributeType name="DateTime"/>
+      </attributeTypes>
+    </property>
+    <property key="dataRetrieveMF" type="microflow" required="true">
+      <caption>Microflow for data retrieval</caption>
+      <category>Data</category>
+      <description>Microflow which returns a list containing all data to be rendered.</description>
+      <returnType type="Object" isList="true" entityProperty="dataItem"/>
+    </property>
+
+    <property key="maxHeight" type="integer" required="true" defaultValue="200">
+      <caption>Max Height (px)</caption>
+      <category>Options</category>
+      <description></description>
+    </property>
+    <property key="barColor" type="string" required="false">
+      <caption>Bar color</caption>
+      <category>Options</category>
+      <description>Define a bar color using a hex value (optional)</description>
+    </property>
+    <property key="backgroundColor" type="string" required="false">
+      <caption>Background color</caption>
+      <category>Options</category>
+      <description>Define a background color using a hex value (optional)</description>
+    </property>
+    <property key="showTooltips" type="boolean" defaultValue="true">
+      <caption>Show tooltips</caption>
+      <category>Options</category>
+      <description></description>
+    </property>
+    <property key="colorByRowLabel" type="boolean" defaultValue="false">
+      <caption>Color by row label</caption>
+      <category>Options</category>
+      <description></description>
+    </property>
+    <property key="groupByRowLabel" type="boolean" defaultValue="true">
+      <caption>Group by row label</caption>
+      <category>Options</category>
+      <description></description>
+    </property>
+    <property key="showRowLabels" type="boolean" defaultValue="true">
+      <caption>Show row labels</caption>
+      <category>Options</category>
+      <description></description>
+    </property>
+    <property key="showBarLabels" type="boolean" defaultValue="true">
+      <caption>Show bar labels</caption>
+      <category>Options</category>
+      <description></description>
+    </property>
+
+    <property key="onSelectMF" type="microflow" required="false" entityProperty="dataItem">
+      <caption>On click Microflow</caption>
+      <category>Behaviour</category>
+      <description>Provide a microflow to be executed on click, the dataItem will be passed to it. (optional)</description>
+      <returnType type="Void"/>
+    </property>
+
+    <property key="chartLanguage" type="translatableString" required="true">
+      <caption>Locale</caption>
+      <category>Chart</category>
+      <description>Define in what language/locale the chart should load. This only impacts the auto generated text, the datetime format (AM/PM or 24h) is taken from the Mendix language settings.</description>
+      <translations>
+        <translation lang="en_US">en</translation>
+        <translation lang="nl_NL">nl</translation>
+        <translation lang="de_DE">de</translation>
+        <translation lang="fr_FR">fr</translation>
+        <translation lang="zh_CN">zh</translation>
+      </translations>
+    </property>
+    <property key="chartVersion" type="string" required="true" defaultValue="45">
+      <caption>Version</caption>
+      <category>Chart</category>
+      <description>Define what version of the Google Timeline chart to load. Possible values are "current", "upcoming" or a specific version number. The widget was build using Google Charts version 45.</description>
+    </property>
+  </properties>
+</widget>
