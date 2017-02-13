@@ -10,6 +10,7 @@ Use this widget to render time related entries for the user. This can be handy f
 * Can be used with persistent and non persistent entities
 * Data retrieval over association is possible
 * The chart is always loaded from the Google servers using the Google Loader, internet connection is required
+* If you want to add custom styling, the chart is located in a div with class "google-timeline-chart", the info message in "google-timeline-info"
 
 
 ##Dependencies

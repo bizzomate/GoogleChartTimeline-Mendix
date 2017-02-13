@@ -6,13 +6,13 @@
     @file      : GoogleChartTimeline.js
     @version   : 1.0.0
     @author    : Jelle Dekker
-    @date      : 2/8/2017
+    @date      : 2/13/2017
     @copyright : Bizzomate 2017
     @license   : Apache 2
 
     Documentation
     ========================
-    Describe your widget here.
+    This widget implements the Google Timeline Chart in Mendix.
 */
 
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
@@ -23,28 +23,27 @@ define([
 
   "mxui/dom",
   "dojo/dom",
-  "dojo/dom-prop",
-  "dojo/dom-geometry",
-  "dojo/dom-class",
   "dojo/dom-style",
   "dojo/dom-construct",
   "dojo/_base/array",
   "dojo/_base/lang",
-  "dojo/text",
   "dojo/html",
-  "dojo/_base/event",
 
   "dojo/query",
 
   "GoogleChartTimeline/lib/loader",
   "dojo/text!GoogleChartTimeline/widget/template/GoogleChartTimeline.html"
-], function(declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent, dojoQuery, loader, widgetTemplate) {
+], function(declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoHtml, dojoQuery, loader, widgetTemplate) {
   "use strict";
 
   // Declare widget's prototype.
   return declare("GoogleChartTimeline.widget.GoogleChartTimeline", [_WidgetBase, _TemplatedMixin], {
     // _TemplatedMixin will create our dom node using this HTML template.
     templateString: widgetTemplate,
+
+    // DOM elements
+    chartNode: null,
+    infoNode: null,
 
     // Parameters configured in the Modeler.
     dataItem: "",
@@ -55,6 +54,7 @@ define([
     barEnd: "",
     dataRetrieveMF: "",
 
+    noResultsMessage: "",
     maxHeight: "",
     barColor: "",
     backgroundColor: "",
@@ -121,7 +121,7 @@ define([
     resize: function(box) {
       logger.debug(this.id + ".resize");
       if (this._chart) {
-        this._drawChart();
+        this._drawChartOrShowMessage();
       }
     },
 
@@ -131,21 +131,13 @@ define([
       // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
     },
 
-    // We want to stop events on a mobile device
-    _stopBubblingEventOnMobile: function(e) {
-      logger.debug(this.id + "._stopBubblingEventOnMobile");
-      if (typeof document.ontouchstart !== "undefined") {
-        dojoEvent.stop(e);
-      }
-    },
-
     // Rerender the interface.
     _updateRendering: function(callback) {
       logger.debug(this.id + "._updateRendering");
 
       if (this._contextObj) {
         dojoStyle.set(this.domNode, "display", "block");
-        dojoStyle.set(this.domNode, "height", this.maxHeight + 'px');
+        dojoStyle.set(this.chartNode, "height", this.maxHeight + 'px');
 
         if (!google.visualization || !google.visualization.Timeline) {
           this._loadGoogleTimelineChart();
@@ -218,74 +210,74 @@ define([
         totalRows = itemList.length,
         totalToLoad = (customTooltip ? totalRows * 5 : totalRows * 4);
 
-        if (!this._dataTable){
-          this._dataTable = new google.visualization.DataTable();
+      if (!this._dataTable) {
+        this._dataTable = new google.visualization.DataTable();
 
+        this._dataTable.addColumn({
+          type: 'string',
+          id: 'rowLabel'
+        });
+        this._dataTable.addColumn({
+          type: 'string',
+          id: 'barLabel'
+        });
+        //Add the optional tooltip if it was defined
+        if (customTooltip) {
           this._dataTable.addColumn({
             type: 'string',
-            id: 'rowLabel'
+            role: 'Tooltip',
+            p: {
+              html: true
+            }
           });
-          this._dataTable.addColumn({
-            type: 'string',
-            id: 'barLabel'
-          });
+        }
+        this._dataTable.addColumn({
+          type: 'date',
+          id: 'Start'
+        });
+        this._dataTable.addColumn({
+          type: 'date',
+          id: 'End'
+        });
+      } else {
+        this._dataTable.removeRows(0, this._dataTable.getNumberOfRows());
+      }
+      this._dataTable.addRows(totalRows);
+      this._rowItems = [];
+      this._itemsLoaded = 0;
+
+      if (itemList.length) {
+        dojoArray.forEach(itemList, dojoLang.hitch(this, function(item, i) {
+          var row = [];
+          this._rowItems[i] = item.getGuid();
+
+          item.fetch(this.rowLabel, dojoLang.hitch(this, function(value) {
+            this._dataTable.setValue(i, 0, value);
+            this._chartDataLoaded(totalToLoad);
+          }));
+          item.fetch(this.barLabel, dojoLang.hitch(this, function(value) {
+            this._dataTable.setValue(i, 1, value);
+            this._chartDataLoaded(totalToLoad);
+          }));
           //Add the optional tooltip if it was defined
           if (customTooltip) {
-            this._dataTable.addColumn({
-              type: 'string',
-              role: 'Tooltip',
-              p: {
-                html: true
-              }
-            });
+            item.fetch(this.tooltip, dojoLang.hitch(this, function(value) {
+              this._dataTable.setValue(i, 2, value);
+              this._chartDataLoaded(totalToLoad);
+            }));
           }
-          this._dataTable.addColumn({
-            type: 'date',
-            id: 'Start'
-          });
-          this._dataTable.addColumn({
-            type: 'date',
-            id: 'End'
-          });
-        } else {
-          this._dataTable.removeRows(0, this._dataTable.getNumberOfRows());
-        }
-        this._dataTable.addRows(totalRows);
-        this._rowItems = [];
-        this._itemsLoaded = 0;
-
-        if (itemList.length){
-          dojoArray.forEach(itemList, dojoLang.hitch(this, function(item, i) {
-            var row = [];
-            this._rowItems[i] = item.getGuid();
-
-            item.fetch(this.rowLabel, dojoLang.hitch(this, function(value) {
-              this._dataTable.setValue(i, 0, value);
-              this._chartDataLoaded(totalToLoad);
-            }));
-            item.fetch(this.barLabel, dojoLang.hitch(this, function(value) {
-              this._dataTable.setValue(i, 1, value);
-              this._chartDataLoaded(totalToLoad);
-            }));
-            //Add the optional tooltip if it was defined
-            if (customTooltip) {
-              item.fetch(this.tooltip, dojoLang.hitch(this, function(value) {
-                this._dataTable.setValue(i, 2, value);
-                this._chartDataLoaded(totalToLoad);
-              }));
-            }
-            item.fetch(this.barStart, dojoLang.hitch(this, function(value) {
-              this._dataTable.setValue(i, (customTooltip ? 3 : 2), new Date(value));
-              this._chartDataLoaded(totalToLoad);
-            }));
-            item.fetch(this.barEnd, dojoLang.hitch(this, function(value) {
-              this._dataTable.setValue(i, (customTooltip ? 4 : 3), new Date(value));
-              this._chartDataLoaded(totalToLoad);
-            }));
+          item.fetch(this.barStart, dojoLang.hitch(this, function(value) {
+            this._dataTable.setValue(i, (customTooltip ? 3 : 2), new Date(value));
+            this._chartDataLoaded(totalToLoad);
           }));
-        } else {
-          this._drawChart();
-        }
+          item.fetch(this.barEnd, dojoLang.hitch(this, function(value) {
+            this._dataTable.setValue(i, (customTooltip ? 4 : 3), new Date(value));
+            this._chartDataLoaded(totalToLoad);
+          }));
+        }));
+      } else {
+        this._drawChartOrShowMessage();
+      }
     },
 
     //Check if all the data has been loaded
@@ -318,14 +310,29 @@ define([
       }
     },
 
+    //Check if we can draw the chart
+    _drawChartOrShowMessage:function(){
+      logger.debug(this.id + "._drawChartOrShowMessage");
+
+      if (this._dataTable && this._dataTable.getNumberOfRows()){
+        this._drawChart();
+      } else {
+        this._showNoResultsMessage();
+      }
+    },
+
     //Draw the chart on screen
     _drawChart: function() {
       logger.debug(this.id + "._drawChart");
+
+      dojoStyle.set(this.chartNode, "display", "block");
+      dojoStyle.set(this.infoNode, "display", "none");
+
       if (this._chart) {
         this._chart.clearChart();
-        dojoStyle.set(this.domNode, "height", this.maxHeight + 'px');
+        dojoStyle.set(this.chartNode, "height", this.maxHeight + 'px');
       } else {
-        this._chart = new google.visualization.Timeline(this.domNode);
+        this._chart = new google.visualization.Timeline(this.chartNode);
         if (this.onSelectMF && this.onSelectMF.trim().length) {
           google.visualization.events.addListener(this._chart, 'select', dojoLang.hitch(this, this._selectHandler));
         }
@@ -334,26 +341,36 @@ define([
       this._chart.draw(this._dataTable, this._options);
     },
 
+    //Show the message that no results are found
+    _showNoResultsMessage: function() {
+      logger.debug(this.id + "._showNoResultsMessage");
+
+      dojoStyle.set(this.chartNode, "display", "none");
+      dojoStyle.set(this.infoNode, "display", "block");
+
+      dojoHtml.set(this.infoNode, this.noResultsMessage);
+    },
+
     //Adjust the height of the container to implement max-height
     _setGraphHeight: function() {
       var
-        div = dojoQuery('div div', this.domNode)[0],
-        svg = dojoQuery('svg', this.domNode),
+        div = dojoQuery('div div', this.chartNode)[0],
+        svg = dojoQuery('svg', this.chartNode),
         g1 = dojoQuery('g', svg[0])[0],
         g2 = (svg.length == 1 ? dojoQuery('g', svg[0])[1] : dojoQuery('g', svg[1])[0]),
         graphHeight = g1.getBBox().height + g2.getBBox().height + 25;
 
-      if (dojoStyle.get(this.domNode, 'height') == 0) {
+      if (dojoStyle.get(this.chartNode, 'height') == 0) {
         return;
       }
 
-      if (graphHeight < dojoStyle.get(this.domNode, 'height')) {
+      if (graphHeight < dojoStyle.get(this.chartNode, 'height')) {
         svg[0].setAttribute('height', graphHeight);
         if (svg[1]) {
           svg[1].setAttribute('height', graphHeight);
         }
         dojoStyle.set(div, 'height', graphHeight + 'px');
-        dojoStyle.set(this.domNode, 'height', graphHeight + 'px');
+        dojoStyle.set(this.chartNode, 'height', graphHeight + 'px');
       }
     },
 

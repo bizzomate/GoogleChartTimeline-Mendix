@@ -68,6 +68,16 @@
       <returnType type="Object" isList="true" entityProperty="dataItem"/>
     </property>
 
+
+    <property key="noResultsMessage" type="translatableString" required="false">
+      <caption>No results message</caption>
+      <category>Options</category>
+      <description></description>
+      <translations>
+        <translation lang="en_US">No results found</translation>
+        <translation lang="nl_NL">Geen resultaten gevonden</translation>
+      </translations>
+    </property>
     <property key="maxHeight" type="integer" required="true" defaultValue="200">
       <caption>Max Height (px)</caption>
       <category>Options</category>
