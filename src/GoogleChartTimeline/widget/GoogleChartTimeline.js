@@ -225,7 +225,7 @@ define([
         if (customTooltip) {
           this._dataTable.addColumn({
             type: 'string',
-            role: 'Tooltip',
+            role: 'tooltip',
             p: {
               html: true
             }
