@@ -3,7 +3,7 @@
   <name>GoogleChartTimeline</name>
   <description>The description of this widget.</description>
 
-  <icon/>
+  <icon>iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAAGiQbecAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADGUExURS44fz5IiUhRj7C0z////19nnX2Dr97g68vN309Xk3B2p2lwo0xUkTE7gVVdl6Oox9TW5fX2+ZmewUVOjUJLi5CWu9vd6ejp8Y2TuTtEh8fK3TU+g5ecv/j5+52hw7q91WZtoevs84OJs1lhmThBhcHE2WJqn/z8/b3B13mArbe6087Q4bS30fLz91xkm6quy9ja55SZveHj7XZ9q3N6qcTH24qPt62xzeXm79HT4+rr8oeMtaaryVJaldrb6O/v9aCkxQAAAO40tAoAAABCdFJOU///////////////////////////////////////////////////////////////////////////////////////AEQWEAAAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARTSURBVFhH7ZnbaiM5EIbbRKE9m5i56BvDmMw4NgT7xrnwwg6Lmfd/q/2r6m+p1OqDHWdgB/qDRKVS6dBqHara1ThNQ0G4uMx7VS0pVoH/NDUCQPIo8mWzaS2cDS0+TtM8UxJcWyK2WQwA4sHyYYP0xI7l7wiVWS6rbXoeGRul34D039e86gXmCQZdVS/4+1cLYmnQl6HZRVbRJ1nBF6YgyItJWdhp8uZUiQXTP4FVAyjnpHnoUtcUMg46c8Fm3RGnuVNwifnwJP8PKgNnp2JoS3yBYSVoSfdNVe3aAithF9YKUU3blCRhA+Lg2hSoGPPfohS+UCBHlgRs8Q7W5TfmZj4fm2HA/DUsQzq5Jlmz/RDWyE3VrGH3nfKD1lox1wvMpVXA8WMTbU0CZ6aJEOLWi5t2mZ49hE4VZ+9WNmo4sip+Hr2Yk6o8SoUj86x8xhzRMKIFipddjnaESmXrZiSBmaPUMQelRlqJurKwwv7/aRILv4dwNGmIrzJOe/CziBPmxrtYgnpPxczM/5W9uAbCtYvVDjzwQMUUN1cQejb3KE/B/Iur2MsBrmzx1A+TXeFYSWxxalxY0I86njwt9dSYuE8aWOwog+c8W7KCgUlLHvxQjL2+aJ9ilaSKp2EC9xOlqolublCXWylejnvCVIZ5opT1JuxdPhM9VCoITyiNVPA1/GpzBRrmOKgG8Glx37Sypcja+3NYCQgSLTD7Er5qijsMd2WGH0acQHEnJXgRXmlITlSDbXbdxBpxPyl+UyUHV4kua6jF+1UHuLMJ8wotSZuNR/CeSyRd01XXXhZ3ESlhg9CVxxthmkiX+CvdJvTaO84WFJv3veEMT9irQTv/QOZlKpyDSfs62lh5AvUdWq5yHHQgilspMzMzMzM9HHleJtq4/JPIL1vhFi/2CnYHRTzS2sRR3+/DyOeAGz6I3MLlVP/SqVHqTXqAxd3PsopXYocNHF54mM6T+ACr9JHk7/X5sWmeHw/r/MPJPZO247Qcy2+vi3bl1qOfjkZZWFziPajVk2+O3m7/l99prHr25QiuXu7/Ie4CPXMUv+cOo1HYtGOkwyi9TignutDp+cFMBDpKkZ0Y/mImIsrRLnShlCscSkqJi5hu6YW3iA4MdqHf2hGVdIGWkqMTRuQMdPETRenTYQJqSp7OvujQ14UGwn2uLNSUPOkjbD9lFxpsyQJFQJkd/FA7/16GLpugG5sVFGe71uidPdm/FvQ5imgxp+/qEH0ZAynSRado6DRU+pvR10a5QLrwE5V/6sgZGKWt7aFCdJHtcH2A/EjRKRhrwU6AwW2SoW+gexyJbqR5oKfxNUGXbrNiz0w1D9SRqCd/JNIzsfyJabJ5YKs7P09TLG3YkX7dVPZgl9Y/QxcKL6Ry+DdgXYTwynzilWvzbi9mlxb58viyPm9ejnISGtu/aHUfi9MbG/S8nTq/Kt7J/nx6t4eplw/nP+kX6ZmZmU+kqv4DOwE/Owc7bvYAAAAASUVORK5CYII=</icon>
 
   <properties>
     <property key="dataItem" type="entity" required="true" isPath="no" allowNonPersistableEntities="true">
@@ -30,10 +30,6 @@
       <description></description>
       <attributeTypes>
         <attributeType name="String"/>
-        <attributeType name="AutoNumber"/>
-        <attributeType name="Long"/>
-        <attributeType name="Integer"/>
-        <attributeType name="Decimal"/>
         <attributeType name="Enum"/>
       </attributeTypes>
     </property>
