@@ -338,6 +338,7 @@ define([
         }
         google.visualization.events.addListener(this._chart, 'ready', dojoLang.hitch(this, this._setGraphHeight));
       }
+      this._setChartOptions();
       this._chart.draw(this._dataTable, this._options);
     },
 
