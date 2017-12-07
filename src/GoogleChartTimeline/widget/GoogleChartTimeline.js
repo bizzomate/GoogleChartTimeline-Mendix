@@ -4,9 +4,9 @@
     ========================
 
     @file      : GoogleChartTimeline.js
-    @version   : 1.0.0
+    @version   : 1.0.1
     @author    : Jelle Dekker
-    @date      : 2/13/2017
+    @date      : 2017/12/07
     @copyright : Bizzomate 2017
     @license   : Apache 2
 
