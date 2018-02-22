@@ -4,10 +4,10 @@
     ========================
 
     @file      : GoogleChartTimeline.js
-    @version   : 1.1.1
+    @version   : 1.2.0
     @author    : Jelle Dekker
-    @date      : 2017/12/07
-    @copyright : Bizzomate 2017
+    @date      : 2018/02/22
+    @copyright : Bizzomate 2018
     @license   : Apache 2
 
     Documentation
@@ -33,7 +33,7 @@ define([
 
   "GoogleChartTimeline/lib/loader",
   "dojo/text!GoogleChartTimeline/widget/template/GoogleChartTimeline.html"
-], function(declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoHtml, dojoQuery, loader, widgetTemplate) {
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoHtml, dojoQuery, loader, widgetTemplate) {
   "use strict";
 
   // Declare widget's prototype.
@@ -48,6 +48,7 @@ define([
     // Parameters configured in the Modeler.
     dataItem: "",
     rowLabel: "",
+    missingRowLabel: "",
     barLabel: "",
     tooltip: "",
     barStart: "",
@@ -81,14 +82,14 @@ define([
     _itemsLoaded: null,
 
     // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
-    constructor: function() {
+    constructor: function () {
       //logger.level(logger.DEBUG);
       logger.debug(this.id + ".constructor");
       this._handles = [];
     },
 
     // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
-    postCreate: function() {
+    postCreate: function () {
       logger.debug(this.id + ".postCreate");
 
       if (this.readOnly || this.get("disabled") || this.readonly) {
@@ -99,7 +100,7 @@ define([
     },
 
     // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
-    update: function(obj, callback) {
+    update: function (obj, callback) {
       logger.debug(this.id + ".update");
 
       this._contextObj = obj;
@@ -108,17 +109,17 @@ define([
     },
 
     // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
-    enable: function() {
+    enable: function () {
       logger.debug(this.id + ".enable");
     },
 
     // mxui.widget._WidgetBase.enable is called when the widget should disable editing. Implement to disable editing if widget is input widget.
-    disable: function() {
+    disable: function () {
       logger.debug(this.id + ".disable");
     },
 
     // mxui.widget._WidgetBase.resize is called when the page's layout is recalculated. Implement to do sizing calculations. Prefer using CSS instead.
-    resize: function(box) {
+    resize: function (box) {
       logger.debug(this.id + ".resize");
       if (this._chart) {
         this._drawChartOrShowMessage();
@@ -126,13 +127,13 @@ define([
     },
 
     // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
-    uninitialize: function() {
+    uninitialize: function () {
       logger.debug(this.id + ".uninitialize");
       // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
     },
 
     // Rerender the interface.
-    _updateRendering: function(callback) {
+    _updateRendering: function (callback) {
       logger.debug(this.id + "._updateRendering");
 
       if (this._contextObj) {
@@ -149,24 +150,24 @@ define([
       }
 
       // The callback, coming from update, needs to be executed, to let the page know it finished rendering
-      mendix.lang.nullExec(callback);
+      this._executeCallback(callback, '_updateRendering');
     },
 
     //Use the Google Loader script to get the provided version of the Google Timeline chart
-    _loadGoogleTimelineChart: function() {
+    _loadGoogleTimelineChart: function () {
       logger.debug(this.id + "._loadGoogleTimelineChart");
       google.charts.load(this.chartVersion, {
         packages: ["timeline"],
         language: this.chartLanguage
       });
-      google.charts.setOnLoadCallback(dojoLang.hitch(this, function() {
+      google.charts.setOnLoadCallback(dojoLang.hitch(this, function () {
         this._setChartOptions();
         this._getChartData();
       }));
     },
 
     //Set the charts options based on the widget config in the Mx Modeler
-    _setChartOptions: function() {
+    _setChartOptions: function () {
       logger.debug(this.id + "._setChartOptions");
       this._options = {
         timeline: {
@@ -184,7 +185,7 @@ define([
     },
 
     //Execute the provided microflow in Mendix to get the display data
-    _getChartData: function() {
+    _getChartData: function () {
       logger.debug(this.id + "._getChartData");
       mx.data.action({
         params: {
@@ -196,14 +197,14 @@ define([
           caller: this.mxform
         },
         callback: dojoLang.hitch(this, this._buildDataTable),
-        error: dojoLang.hitch(this, function(error) {
+        error: dojoLang.hitch(this, function (error) {
           console.log(this.id + '_getChartData ' + error);
         })
       });
     },
 
     //Enter the data into the Google Chart format
-    _buildDataTable: function(itemList) {
+    _buildDataTable: function (itemList) {
       logger.debug(this.id + "._buildDataTable");
       var
         customTooltip = this.tooltip && this.tooltip.trim().length,
@@ -247,30 +248,30 @@ define([
       this._itemsLoaded = 0;
 
       if (itemList.length) {
-        dojoArray.forEach(itemList, dojoLang.hitch(this, function(item, i) {
+        dojoArray.forEach(itemList, dojoLang.hitch(this, function (item, i) {
           var row = [];
           this._rowItems[i] = item.getGuid();
 
-          item.fetch(this.rowLabel, dojoLang.hitch(this, function(value) {
-            this._dataTable.setValue(i, 0, value);
+          item.fetch(this.rowLabel, dojoLang.hitch(this, function (value) {
+            this._dataTable.setValue(i, 0, value && value.length ? value : this.missingRowLabel);
             this._chartDataLoaded(totalToLoad);
           }));
-          item.fetch(this.barLabel, dojoLang.hitch(this, function(value) {
-            this._dataTable.setValue(i, 1, value);
+          item.fetch(this.barLabel, dojoLang.hitch(this, function (value) {
+            this._dataTable.setValue(i, 1, value && value.length ? value : "");
             this._chartDataLoaded(totalToLoad);
           }));
           //Add the optional tooltip if it was defined
           if (customTooltip) {
-            item.fetch(this.tooltip, dojoLang.hitch(this, function(value) {
-              this._dataTable.setValue(i, 2, value);
+            item.fetch(this.tooltip, dojoLang.hitch(this, function (value) {
+              this._dataTable.setValue(i, 2, value && value.length ? value : "");
               this._chartDataLoaded(totalToLoad);
             }));
           }
-          item.fetch(this.barStart, dojoLang.hitch(this, function(value) {
+          item.fetch(this.barStart, dojoLang.hitch(this, function (value) {
             this._dataTable.setValue(i, (customTooltip ? 3 : 2), new Date(value));
             this._chartDataLoaded(totalToLoad);
           }));
-          item.fetch(this.barEnd, dojoLang.hitch(this, function(value) {
+          item.fetch(this.barEnd, dojoLang.hitch(this, function (value) {
             this._dataTable.setValue(i, (customTooltip ? 4 : 3), new Date(value));
             this._chartDataLoaded(totalToLoad);
           }));
@@ -281,7 +282,7 @@ define([
     },
 
     //Check if all the data has been loaded
-    _chartDataLoaded: function(totalToLoad) {
+    _chartDataLoaded: function (totalToLoad) {
       logger.debug(this.id + "._chartDataLoaded");
       this._itemsLoaded = this._itemsLoaded + 1;
       if (this._itemsLoaded === totalToLoad) {
@@ -290,7 +291,7 @@ define([
     },
 
     //Handle user interaction (Click on bar)
-    _selectHandler: function() {
+    _selectHandler: function () {
       logger.debug(this.id + "._selectHandler");
       var selectedDataItem = this._chart.getSelection()[0];
       if (selectedDataItem) {
@@ -303,7 +304,7 @@ define([
           store: {
             caller: this.mxform
           },
-          error: dojoLang.hitch(this, function(error) {
+          error: dojoLang.hitch(this, function (error) {
             console.log(this.id + '_selectHandler ' + error);
           })
         });
@@ -311,10 +312,10 @@ define([
     },
 
     //Check if we can draw the chart
-    _drawChartOrShowMessage:function(){
+    _drawChartOrShowMessage: function () {
       logger.debug(this.id + "._drawChartOrShowMessage");
 
-      if (this._dataTable && this._dataTable.getNumberOfRows()){
+      if (this._dataTable && this._dataTable.getNumberOfRows()) {
         this._drawChart();
       } else {
         this._showNoResultsMessage();
@@ -322,7 +323,7 @@ define([
     },
 
     //Draw the chart on screen
-    _drawChart: function() {
+    _drawChart: function () {
       logger.debug(this.id + "._drawChart");
 
       dojoStyle.set(this.chartNode, "display", "block");
@@ -343,7 +344,7 @@ define([
     },
 
     //Show the message that no results are found
-    _showNoResultsMessage: function() {
+    _showNoResultsMessage: function () {
       logger.debug(this.id + "._showNoResultsMessage");
 
       dojoStyle.set(this.chartNode, "display", "none");
@@ -353,7 +354,7 @@ define([
     },
 
     //Adjust the height of the container to implement max-height
-    _setGraphHeight: function() {
+    _setGraphHeight: function () {
       var
         div = dojoQuery('div div', this.chartNode)[0],
         svg = dojoQuery('svg', this.chartNode),
@@ -375,9 +376,9 @@ define([
       }
     },
 
-    _unsubscribe: function() {
+    _unsubscribe: function () {
       if (this._handles) {
-        dojoArray.forEach(this._handles, function(handle) {
+        dojoArray.forEach(this._handles, function (handle) {
           mx.data.unsubscribe(handle);
         });
         this._handles = [];
@@ -385,7 +386,7 @@ define([
     },
 
     // Reset subscriptions.
-    _resetSubscriptions: function() {
+    _resetSubscriptions: function () {
       logger.debug(this.id + "._resetSubscriptions");
       // Release handles on previous object, if any.
       this._unsubscribe();
@@ -394,12 +395,19 @@ define([
       if (this._contextObj) {
         var objectHandle = mx.data.subscribe({
           guid: this._contextObj.getGuid(),
-          callback: dojoLang.hitch(this, function(guid) {
+          callback: dojoLang.hitch(this, function (guid) {
             this._updateRendering();
           })
         });
 
         this._handles = [objectHandle];
+      }
+    },
+
+    _executeCallback: function (cb, from) {
+      logger.debug(this.id + "._executeCallback" + (from ? " from " + from : ""));
+      if (cb && typeof cb === "function") {
+        cb();
       }
     }
   });
