@@ -70,7 +70,7 @@
     </property>
     <property key="noResultsMessage" type="translatableString" required="false">
       <caption>No results message</caption>
-      <category>Options</category>
+      <category>Display options</category>
       <description></description>
       <translations>
         <translation lang="en_US">No results found</translation>
@@ -79,47 +79,47 @@
     </property>
     <property key="maxHeight" type="integer" required="true" defaultValue="200">
       <caption>Max Height (px)</caption>
-      <category>Options</category>
+      <category>Display options</category>
       <description></description>
     </property>
     <property key="barColor" type="string" required="false">
       <caption>Bar color</caption>
-      <category>Options</category>
+      <category>Chart options</category>
       <description>Define a bar color using a hex value (optional)</description>
     </property>
     <property key="backgroundColor" type="string" required="false">
       <caption>Background color</caption>
-      <category>Options</category>
+      <category>Chart options</category>
       <description>Define a background color using a hex value (optional)</description>
     </property>
     <property key="showTooltips" type="boolean" defaultValue="true">
       <caption>Show tooltips</caption>
-      <category>Options</category>
+      <category>Chart options</category>
       <description></description>
     </property>
     <property key="colorByRowLabel" type="boolean" defaultValue="false">
       <caption>Color by row label</caption>
-      <category>Options</category>
+      <category>Chart options</category>
       <description></description>
     </property>
     <property key="groupByRowLabel" type="boolean" defaultValue="true">
       <caption>Group by row label</caption>
-      <category>Options</category>
+      <category>Chart options</category>
       <description></description>
     </property>
     <property key="showRowLabels" type="boolean" defaultValue="true">
       <caption>Show row labels</caption>
-      <category>Options</category>
+      <category>Chart options</category>
       <description></description>
     </property>
     <property key="showBarLabels" type="boolean" defaultValue="true">
       <caption>Show bar labels</caption>
-      <category>Options</category>
+      <category>Chart options</category>
       <description></description>
     </property>
     <property key="showProgressbar" type="boolean" defaultValue="false">
       <caption>Show progressbar</caption>
-      <category>Options</category>
+      <category>Display options</category>
       <description>Show progressbar during retrieve and load of data</description>
     </property>
 
@@ -132,7 +132,7 @@
 
     <property key="chartLanguage" type="translatableString" required="true">
       <caption>Locale</caption>
-      <category>Chart</category>
+      <category>Chart options</category>
       <description>Define in what language/locale the chart should load. This only impacts the auto generated text, the datetime format (AM/PM or 24h) is taken from the Mendix language settings.</description>
       <translations>
         <translation lang="en_US">en</translation>
@@ -141,8 +141,25 @@
     </property>
     <property key="chartVersion" type="string" required="true" defaultValue="45">
       <caption>Version</caption>
-      <category>Chart</category>
+      <category>Chart options</category>
       <description>Define what version of the Google Timeline chart to load. Possible values are "current", "upcoming" or a specific version number. The widget was build using Google Charts version 45.</description>
+    </property>
+    <property key="additionalOptionList" type="object" isList="true" required="false">
+      <caption>Additional options</caption>
+      <category>Chart options</category>
+      <description>Add options as can be found in the Google charts documentation. </description>
+      <properties>
+        <property key="option" type="string">
+          <caption>Option</caption>
+          <category>Options</category>
+          <description>The option name. Example: timeline.barLabelStyle.fontName</description>
+        </property>
+        <property key="value" type="string">
+          <caption>Value</caption>
+          <category>Options</category>
+          <description>The option value. Example: Arial</description>
+        </property>
+      </properties>
     </property>
   </properties>
 </widget>

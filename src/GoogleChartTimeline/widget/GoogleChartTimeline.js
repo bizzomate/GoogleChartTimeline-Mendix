@@ -65,6 +65,9 @@ define([
     showRowLabels: "",
     showBarLabels: "",
     showProgressbar: "",
+    additionalOptionList: "",
+    option: "",
+    value: "",
 
     onSelectMF: "",
 
@@ -81,7 +84,6 @@ define([
     _chart: null,
     _rowItems: null,
     _itemsLoaded: null,
-    _progressDialogId: null,
 
     // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
     constructor: function () {
@@ -185,34 +187,54 @@ define([
         },
         backgroundColor: (this.backgroundColor && this.backgroundColor.trim().length ? this.backgroundColor : null)
       };
+      dojoArray.forEach(this.additionalOptionList, function (additionalOption) {
+        var
+          option = this._options,
+          keyArray = additionalOption.option.split('.'),
+          arrLength = keyArray.length;
+
+        for (var i = 0; i < arrLength; i++) {
+          if (i < arrLength - 1) {
+            if (!(keyArray[i] in option)) {
+              option[keyArray[i]] = {};
+            }
+            option = option[keyArray[i]];
+          } else {
+            option[keyArray[i]] = additionalOption.value;
+          }
+        }
+      }, this);
     },
 
     //Execute the provided microflow in Mendix to get the display data
     _getChartData: function () {
       logger.debug(this.id + "._getChartData");
+
       if (this.showProgressbar) {
-        this._showProgress();
+        mx.ui.action(this.dataRetrieveMF, {
+          params: {
+            applyto: "selection",
+            guids: [this._contextObj.getGuid()]
+          },
+          progress: "modal",
+          callback: dojoLang.hitch(this, this._buildDataTable),
+          error: dojoLang.hitch(this, function (error) {
+            console.log(this.id + '_getChartData ' + error);
+          })
+        }, this);
+      } else {
+        mx.ui.action(this.dataRetrieveMF, {
+          params: {
+            applyto: "selection",
+            guids: [this._contextObj.getGuid()]
+          },
+          callback: dojoLang.hitch(this, this._buildDataTable),
+          error: dojoLang.hitch(this, function (error) {
+            console.log(this.id + '_getChartData ' + error);
+          })
+        }, this);
       }
-      mx.data.action({
-        params: {
-          applyto: "selection",
-          actionname: this.dataRetrieveMF,
-          guids: [this._contextObj.getGuid()]
-        },
-        store: {
-          caller: this.mxform
-        },
-        callback: dojoLang.hitch(this, this._buildDataTable),
-        error: dojoLang.hitch(this, function (error) {
-          try {
-            // In try catch because we have no idea why it failed.
-            this._hideProgress();
-          } catch (error) {
-            // ignore.            
-          }
-          console.log(this.id + '_getChartData ' + error);
-        })
-      });
+
     },
 
     //Enter the data into the Google Chart format
@@ -291,7 +313,6 @@ define([
       } else {
         this._drawChartOrShowMessage();
       }
-      this._hideProgress();
     },
 
     //Check if all the data has been loaded
@@ -414,21 +435,6 @@ define([
         });
 
         this._handles = [objectHandle];
-      }
-    },
-
-    // Show progressbar, only when not already active.
-    _showProgress: function () {
-      if (this._progressDialogId === null) {
-        this._progressDialogId = mx.ui.showProgress();
-      }
-    },
-
-    // Hide progressbar, if visible
-    _hideProgress: function () {
-      if (this._progressDialogId !== null) {
-        mx.ui.hideProgress(this._progressDialogId);
-        this._progressDialogId = null;
       }
     },
 
