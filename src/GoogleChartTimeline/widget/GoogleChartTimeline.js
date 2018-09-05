@@ -64,6 +64,7 @@ define([
     groupByRowLabel: "",
     showRowLabels: "",
     showBarLabels: "",
+    showProgressbar: "",
 
     onSelectMF: "",
 
@@ -80,6 +81,7 @@ define([
     _chart: null,
     _rowItems: null,
     _itemsLoaded: null,
+    _progressDialogId: null,
 
     // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
     constructor: function () {
@@ -130,6 +132,7 @@ define([
     uninitialize: function () {
       logger.debug(this.id + ".uninitialize");
       // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
+      this._unsubscribe();
     },
 
     // Rerender the interface.
@@ -187,6 +190,9 @@ define([
     //Execute the provided microflow in Mendix to get the display data
     _getChartData: function () {
       logger.debug(this.id + "._getChartData");
+      if (this.showProgressbar) {
+        this._showProgress();
+      }
       mx.data.action({
         params: {
           applyto: "selection",
@@ -198,6 +204,12 @@ define([
         },
         callback: dojoLang.hitch(this, this._buildDataTable),
         error: dojoLang.hitch(this, function (error) {
+          try {
+            // In try catch because we have no idea why it failed.
+            this._hideProgress();
+          } catch (error) {
+            // ignore.            
+          }
           console.log(this.id + '_getChartData ' + error);
         })
       });
@@ -279,6 +291,7 @@ define([
       } else {
         this._drawChartOrShowMessage();
       }
+      this._hideProgress();
     },
 
     //Check if all the data has been loaded
@@ -401,6 +414,21 @@ define([
         });
 
         this._handles = [objectHandle];
+      }
+    },
+
+    // Show progressbar, only when not already active.
+    _showProgress: function () {
+      if (this._progressDialogId === null) {
+        this._progressDialogId = mx.ui.showProgress();
+      }
+    },
+
+    // Hide progressbar, if visible
+    _hideProgress: function () {
+      if (this._progressDialogId !== null) {
+        mx.ui.hideProgress(this._progressDialogId);
+        this._progressDialogId = null;
       }
     },
 

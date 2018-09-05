@@ -117,6 +117,11 @@
       <category>Options</category>
       <description></description>
     </property>
+    <property key="showProgressbar" type="boolean" defaultValue="false">
+      <caption>Show progressbar</caption>
+      <category>Options</category>
+      <description>Show progressbar during retrieve and load of data</description>
+    </property>
 
     <property key="onSelectMF" type="microflow" required="false" entityProperty="dataItem">
       <caption>On click Microflow</caption>
