@@ -38,6 +38,15 @@
         <attributeType name="Enum"/>
       </attributeTypes>
     </property>
+    <property key="barColorAttribute" type="attribute" isPath='optional' pathType='reference' entityProperty="dataItem" required="false">
+      <caption>Bar color attribute</caption>
+      <category>Data</category>
+      <description>Set the bar color per bar based on an attribute using a hex value (optional)</description>
+      <attributeTypes>
+        <attributeType name="String"/>
+        <attributeType name="Enum"/>
+      </attributeTypes>
+    </property>
     <property key="tooltip" type="attribute" isPath='optional' pathType='reference' required="false" entityProperty="dataItem">
       <caption>Tooltip</caption>
       <category>Data</category>
